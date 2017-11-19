@@ -1,0 +1,175 @@
+/******************************
+Operating System Introduction : 
+******************************/
+
+Definition :
+Software layer that ABSTRACTS and ARBITRATES underlying hardware.
+
+Function : 
+1) Directs resources (time, tools)
+-cpu
+-memory
+-devices
+
+2) Enforces working policies (sharing, safety, cleanup) 
+-fair resource access 
+-resource usage limits
+
+3) Mitigates difficulty of complex tasks (optimizes performance, simplifies operation)
+-abstracts hardware details via system calls
+
+Computing systems comprise multiple hardware elements
+-processors (now multiple cores)
+-main memory
+-network devices (ethernet ports and wifi cards)
+-secondary storage (disk)
+-graphical cards (GPU)
+
+Hardware is used by multiple user proceses. The operating system is the software layer between hardware 
+and applications. The OS :
+
+-has provileged access to hardware and can manipulate their state
+-hides hardware details (hard disk sectors/tracks/cylinders)
+-provides abstractions called files
+-controls device access based on certain policies
+-abstracts network packets via sockets 
+-allocates memory (isolation) 
+-schedules CPU time 
+
+Types of OS :
+-desktop/server (Windows, Unix -> Mac OS X, Linux)
+-embedded (Android, iOS, Symbian)
+-main frames
+
+OS Elements :
+Abstractions -> process, thread, file, socket, memory page 
+Mechanisms -> create, schedule, open, write, allocate
+Policies -> least recently used (LRU), earliest deadline first (EDF)
+
+E.g. memory management
+*** 
+Memory and disk are both internal storage types. Memory (RAM) hardware lets processors perform tasks 
+efficiently due to high access speed, also it allows multi-tasking. Disk is used for long term and higher 
+volume storage. Virtual memory is the technique by which processes believe they have a large continuous 
+block of memory. Virtual addresses are then mapped to physical memory. Paging is a concept within virtual 
+memory which deals with mapping memory addresses to disk, in blocks called pages.
+***
+abastraction -> memory page
+mechanism -> allocate, map to process
+policies -> least recently used (LRU) swapped to disk
+
+OS Design Principles : 
+1) Seperation of mechanism and policy
+-implement flexible mechanisms supporting many policies 
+-e.g. for memory management, LRU, LFU, random
+
+2) Optimize for common case
+-where the OS will be used (resources)
+-what does the user want to execute (workload)
+
+User/Kernel boundary :
+Most modern CPU supports two modes, determined by special bit.
+
+user-level : 
+-unprivileged 
+-access hardware via system calls 
+E.g. open (file), send (socket), malloc (allocate memory)
+
+kernel-level : 
+-privileged
+-direct hardware access
+-singals pass notifications from kernel to processes
+
+To make a system call, an application must 
+-write arguments
+-save relevant data at a well-defined location (for passing arguments)
+-make system call
+
+synchronous mode : wait until system call completes
+
+Crossing the user/kernel boundary :  
+-hardware supported
+-processor trap instructions on illegal application instructions or memory access requiring special memory
+	-> control passed to kernel and mode bit is swiched
+	-> e.g. application cannot change contents of special registers 
+	(stack pointer, program counter, instruction register, MDR/MAR)
+-switching control to OS affects hardware cache
+-involves number of instructions, system calls are not cheap
+
+Basic OS Services : 
+-Scheduler (CPU time)
+-Memory manager (isolation, protection)
+-Block device driver (disk access)
+-File System
+-Process/memory/device management
+
+Services are delivered through system calls : 
+fork(), exit(), wait() //processes
+open(), read(), write(), close() //files
+ioctl(), read(), write() //devices
+
+On a 64 bit Linux OS
+kill() //sends signals to processes
+setpgid() //sets the id of the process group
+mount() //mount a disk partition's filesystem
+sysctl() //read/write system parameters
+
+1) Monolithic OS :
+All services and abstractions packaged into the OS.
+Not portable, maintainable or customizatble.
+
+2) Modular OS : 
+Basic services and API's included. Modules can add functionality by implementing interfaces.
+More customizability, but indirection can reduce performance and different modules may be hard to maintain.
+
+3) Microkernel : 
+Microkernel requires most basic services, e,g, IPC, address space and threads. All other services 
+(disk driver, filesystem support) run at user level.
+Small size, verifiable. However not portable and cost of user/kernel crossing.
+
+Linux architecture : 
+
+Hardware {
+CPU, memory, disks
+}
+
+Kernel space {
+process/memory management
+filesystem support
+I/O
+}
+
+User space {
+standard libraries which implement system call interfaces
+standard utility programs (shell, editor, compiler)
+user applications
+}
+
+Kernel structure :
+
+System Calls
+Kernel {
+	I/O component {
+		Virtual Filesystem {
+			character device drivers (terminals)
+			network device drivers (sockets, network protocols)
+			block device drivers (file systems)
+		}
+	}
+	
+	Memory management component {
+		Virtual Memory
+		Page replacement
+		Page cache
+	}
+	
+	Process management componenet {
+		Singal handling
+		Process/thread creation and termination
+		CPU scheduling
+	}
+	
+	Interrupts/Dispatcher
+}
+
+
