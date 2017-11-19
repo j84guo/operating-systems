@@ -1,0 +1,181 @@
+/************************
+Threads and Concurrency :
+************************/
+
+Definition : 
+Sequence of execution with its own context, operating within a shared address space.
+
+Characteristics :
+-active entity, executing unit of work on behalf of a process
+-threads may work simultaneously
+-threads require co-ordination to resources (processors, I/O devices)
+
+Process vs Thread :
+A single threaded process is represented by its PCB (code, data, files, virtual address space physical 
+mapping, context -> speial registers)
+
+Threads represnet multiple independent execution contexts in a shared address space. This means each thread 
+has its own IR, PC, SP, stack. The OS represents a multi-threaded with a more complex PCB which holds shared 
+information (mapping, code, data, files) and individual contexts (stack, special register values).
+
+Why are threads useful : 
+-threads can execute the same code on different portions of input simultaneously
+-threads may have different functions, allowing priority management 
+-when each thread is on a different processor, they each have their own cache and smaller instruction set, 
+ therefore hotter cache
+-multi-process applications use more memory compare to multi-threaded
+-also inter thread-communication (shared memory) is generally cheaper than inter-process communication
+ (recall even share memory IPC has different mapping overheads)
+
+Are threads useful when there are more threads than processors :
+If a thread T1 is waiting on I/O (e.g. disk) it may make sense to context switch to another thread. Note 
+that thread context switches are cheaper than process  swithces because threads don't need a new address 
+mapping.
+
+Basic thread mechanisms : 
+-thread data structure
+	-> indentify threads, track resource usage
+-creation and management mechanisms
+-co-ordinate concurrent threads which share an address space 
+
+Concurrency : 
+Concurrent processes operate within their own address space (isolation, protection). 
+Threads may tamper with each other's shared data. Data race occurs when simultaneous access occurs.
+
+Thread synchronization mechanisms : 
+Mutual exclusion -> lets one thread at a time access data, i.e. mutex
+Condition variables -> wanting on conditions allows conditional processing
+
+*** general concepts in thread libraries *** 
+Threads and Thread Creation : 
+-Thread type 
+	-> data structure describing thread (thread ID, special registers, stack, attributes)
+-Fork(proc, args)
+	-> create a thread (with a new thread data structure, starting instruction at proc with args)
+	-> not unix fork 
+-Join(thread)
+	-> parent blocked until child completes
+	-> terminate a thread and free thread data structures
+	-> returns child computation result to parent
+
+// pseudo code
+Thread thread1;
+SharedList list;
+thread1 = fork(safeInsert, 4); // called by thread0
+safeInsert(6); // order of insertion is unclear given this code
+join(thread1); // parent blocked until child finishes
+
+// above, there is a danger of data race
+// data could be overwritten by simultaneous access, overwriting for example one of the two values
+1) Mutexes : 
+A lock that should be used when accessing shared data. A thread locks a mutex, getting exclusive access to 
+the shared resource. Other threads are blocked from accessing it. Mutex data structure should contain 
+resource status, list of blocked threads, owner (who has the lock).
+
+// like synchronized in Java?
+// common API's have lock(m) and unlock(m) functions
+Lock(mutex) {
+	// code in the lock operation block is the critical section
+	// only one thread may execute this code at a time
+	// other threads trying to lock a mutex are out in a blocked list (sometimes a simple queue)
+}
+
+Mutex example : 
+list<int> my_list;
+Mutex m;
+void safe_insert(int i){
+	Lock(m){
+		my_list.insert(i);
+	}
+	// unlock
+}
+
+2) Producer / Consumer :
+What if mutual exclusion processing should only occur under certain conditions?
+Many producer threads, one consumer thread. (only when list is full).
+
+// pseudocode
+for i=0..10
+	producers[i] = fork(safe_insert, NULL)// create producers
+consumer = fork(print_and_clear, my_list)//produce consumers  
+
+// producers : safe insert
+Lock(m){
+	list->insert(my_thread_id)
+}
+// unlock
+
+// consumer : print_and_clear
+Lock(m){
+	// wasteful approach!
+	// therefore use condition variables to control thread behaviour
+	if my_list.full -> print; clear up to limit of elements of list
+	else -> release lock and try again later
+} 
+// unlock
+
+/************
+modified condition variable code
+************/
+
+//consumer : print_and_clear
+Lock(m){
+	while(my_list.not_full())
+		Wait(m, list_full);
+	my_list.print_and_remove_all();
+}
+// unlock
+
+// producer : safe_insert
+Lock(m){
+	my_list.insert(my_thread_id)
+	if my_list.full()
+		Signal(list_full);
+}
+// unlock
+
+Conditional Variable API :
+-Condition type 
+-Wait(mutex, cond)
+	-> mutex automatically realease and qcquired on wait
+-Signal(cond)
+	-> notify only one waiting thread 
+-Broadcast(cond)
+	->notify all waiting threads
+
+Condition variable : 
+mutex reference
+waiting threads
+
+// E.g.
+Wait(mutex, cond) {
+	// release mutex
+	// got to wait queue
+	
+	// wait...
+	
+	// remove from queue
+	// re-acquire mutex
+	// exit wait operation
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

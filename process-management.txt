@@ -90,11 +90,19 @@ idle (ready) -> ready to execute, but not in CPU
 waiting -> waiting for user input, I/O
 terminated -> process finishes or encounters error
 
+process table : a data structure maintained by the Kernel to track processes. It may have one PCB per 
+process.
+
 new -> admitted to ready
 ready -> dispatched by scheduler
 running -> exit (termintated), I/O wait event (waiting), interrupted (back to ready)
 waiting -> Reading data from disk, timer, user input. Once I/O completed, back to ready.
-terminated -> done or error
+terminated -> Process finishes or encounters error. 
+zombie -> When a process wants to end, it releases its data structures an sends a signal to the 
+parent. It is up to the parent process to release the child. In between sending the SGCHLD signal and being
+ended by the parent, the child is in a zombie state. During this time the kernel verifies that it does in
+fact want to terminate the process.
+*** sleeping : ***
 
 Process Creation Mechanisms : 
 A process can create children.
@@ -157,7 +165,7 @@ Inter-process communication :
 
 E.g. Message-passing IPC
 -OS provides communication channel, like shared buffer
--Processes write/read messgae to/from channel
+-Processes write/read message to/from channel
 pro -> OS manages, therefore consistent API, e.g. send(), recv()
 con -> overhead from OS management. data duplicated in both processes and buffer
 

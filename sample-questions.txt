@@ -11,9 +11,10 @@ System :
 1) out of the 5-6 states you can find under ps, which two take up system memory
 Answer ------> Processes can be new (pending resource allocation and admission), ready (awaiting dispatch), running (intructions in CPU), waiting (pending I/O like user input or disk read) or terminated (removed from memory). Since waiting processes are usually swapped to disk, ready and running are states which take up memory.
 
-2) what is a zombie process 
-Answer ------> 
-
+2) what is a zombie process ***improve***
+Answer ------> When a child wants to end, it releases its data structures and sends a signal to the kernel 
+that it is finished, then the kernel removes it from the process table. In between sending the signal and 
+having its PCB removed, the process is a zombie. 
 
 3) what happens when you type ls -l in the terminal
 Answer ------> 
@@ -24,9 +25,15 @@ Answer ------>
 4. Once found, the shell will fork() itself and then use exec() to replace itself with the image of the executable.
 5. The ls process executes and exists, sending output to the terminal.
 
--what signal kills a process
--what are process groups and thread groups
+4) What is swap and how is it used? What are come use cases.
 
+5) what are process groups and thread groups
+
+6) what are signals
+
+7) what signal kills a process
+
+-how does the system manage memory and what are the tradeoffs
 -what does it mean when you have many system interrupts
 -what is a signal and how is it handled by the kernel
 -cache vs buffer
