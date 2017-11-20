@@ -1,0 +1,85 @@
+// Timeline : 
+// study Udacity intro to OS in 5 days
+// study Linux in 3 days
+// research all questions in 5 days
+// read OS online notes and web architecture article in 2 days 
+
+/*******
+System : 
+*******/
+
+1) out of the 5-6 states you can find under ps, which two take up system memory
+Answer ------> Processes can be new (pending resource allocation and admission), ready (awaiting dispatch), running (intructions in CPU), waiting (pending I/O like user input or disk read) or terminated (removed from memory). Since waiting processes are usually swapped to disk, ready and running are states which take up memory.
+
+2) what is a zombie process ***improve***
+Answer ------> When a child wants to end, it releases its data structures and sends a signal to the kernel 
+that it is finished, then the kernel removes it from the process table. In between sending the signal and 
+having its PCB removed, the process is a zombie. 
+
+3) what happens when you type ls -l in the terminal
+Answer ------> 
+0. The command displays files and directories in the pwd, along with permissions, owners and created date/time.
+1. The shell checks if ls is an alias.
+2. If not, it checks if it is a built in.
+3. If not, it searches its PATH variable for an ls executable. (probably found at /usr/bin/ls) 
+4. Once found, the shell will fork() itself and then use exec() to replace itself with the image of the executable.
+5. The ls process executes and exists, sending output to the terminal.
+
+4) What is swap and how is it used? What are come use cases.
+
+5) what are process groups and thread groups
+
+6) what are signals
+
+7) what signal kills a process
+
+-how does the system manage memory and what are the tradeoffs
+-what does it mean when you have many system interrupts
+-what is a signal and how is it handled by the kernel
+-cache vs buffer
+-how would you design a cache api
+
+-what is a file system and how does it work
+-what are file descriptors and how do they work
+
+-write a performance monitoring script
+-Suppose there is a server with high CPU load but there is no process with high CPU time. What could be the reason for that? How do you 
+debug this problem? Does your solution always work, and if not, what's the reason for that?
+-a write operation failed with an error, how do you figure out what happened 
+-how file globbing works
+-how to improve database with slow I/O
+
+/***********
+Networking :
+***********/
+
+-where is dns file
+-why wouldn't you want a root DNS server to answer queries for you, instead of delegating you to an authoritative server?  
+-what is the type of record that resolves url's to ip records?  
+-what tcp headers does traceroute modify
+-In IPv6 what is the A record equivalent?  
+-what is your favourite networking protocol
+-common port names (http, https, dns, ssh)
+-What options do you have, nefarious or otherwise, to stop people on a wireless network you are also on (but have no admin rights to) 
+from hogging bandwidth by streaming videos?  
+-what happens when a client makes a request for a website
+
+/*******
+Coding :
+*******/ 
+-operations on data files (counting, filter, sort, implement formula)
+-re-implement tail in scripting language
+-most efficient sort (radix/counting, quicksort, mergesort)
+-write a script to contact 100 hosts, look for a process and then sends an email report
+-clean bad words from a text file
+-Given a sentence convert the sentence to the modified pig-latin language:
+ Words beginning with a vowel, remove the vowel letter and append the letter to the end.
+ All words append the letters 'ni' to the end.
+ All words incrementally append the letter 'j'. i.e. 'j','jj','jjj', etc...  
+
+
+
+
+
+
+

@@ -1,0 +1,181 @@
+/*******************
+Process Management :
+********************/
+
+A process is an instance of an executing program (task, job). It represents the execution state (code/data). 
+Recall that OS manages hardware on behalf of applications. Applications are static entities, like a program 
+stored on disk. Once an application is launched, its instructions are loaded into memory and executed, thus 
+becoming an active entity, a process. The same program can be launched more than once, creating multiple 
+processes.
+
+The code and data of a process is represented in an abstracton called an address space. It is a range of
+addresses with different regions for different types of process state. E.g. code, static data, heap, stack.
+
+Types of state in an address space :
+1) code and data
+-static state when process is first loaded from disk
+
+2) heap 
+-dynamically created during execution
+
+3)stack
+-grows and shrinks (LIFO)
+-used to save execution state before subroutine call
+
+Address space is virtual! Memory management hardware and OS components (page tables) map virtual addresses
+to physical addresses. This decoupled layout of data in the virtual adress space to the physical layout.
+
+Definitions : 
+address space -> in memory representation of a process
+page table -> mapping of virtual to physical addresses
+physical address -> location in physical memory
+
+State of execution : program counter, stack pointer  
+Temporary holding area : data, register state, memory state
+Special hardware : I/O devices
+
+Not all processes require the entire address space in memory. Or, there may not be enough physical memory. for 
+example a 32 bit address is limited to 4GB, so multiple processes will quickly use a lot of "total" memory.
+The OS dynamically decides which portion of which process will be present in memory. Processes may have 
+portions of address space swapped to disk. 
+
+How does the OS knows what a process is doing? Special CPU registers!
+
+e.g. Program counter (PC) : 
+-address of current instruction being executed
+
+e.g. Stack Pointer (SP) :  
+-process stack
+
+e.g. Instruction Register (IR) :
+-address of next instruction to execute 
+
+Process Control Block (PCB) : 
+Data structure maintained by the OS to represent process information. 
+-special CPU registers like PC, SP, IR 
+-general CPU registers
+-memory limits & mapping
+-list of open files
+-priority
+-signal mask
+-CPU scheduling information
+
+PCB data structure is created when process is created. Certain fields are updated when process changes, 
+e.g request for new memory. Other fields change frequently, e.g. CPU registers.
+
+How is PCB used? It is updated every time the OS wants to perform a context switch.
+Assume OS manages P1 and P2 processes. Each has a PB.
+P1 is running. CPU registers hold values representing P1 state.
+OS interrupts P1, making P1 idle. OS saves PCB.
+Updates CPU registers for P2 (using P2 PCB)
+If P2 requests new memory, OS allocates new memory updates the PCB for P2 appropriately (e.g. memory limits).
+Once OS wants to terminate P2, it saves P2's state into its PCB. 
+OS restores P1 in CPU.
+
+PCB's for each process reside in memory. CPU register's change based on which process is executing. 
+
+*** CPU's have a cache hierarchy each larger & slower than the previous ***
+Context switch : swiching the CPU from the context of one process to the context of another.
+Context switches are expensive! 
+-Direct cost is the number of cycles needed to load/store instructions
+-Indirect cost is cold processor cache after switching back! 
+
+Therefore we should limit the context switch frequency.
+
+Process lifecycle : States 
+new -> process created (OS performs admission control, allocates PCB and resources)
+ready -> not actually executing in CPU, but ready for scheduler to move it into CPU
+running -> executing in CPU, can be interrupted and context switched
+idle (ready) -> ready to execute, but not in CPU
+waiting -> waiting for user input, I/O
+terminated -> process finishes or encounters error
+
+process table : a data structure maintained by the Kernel to track processes. It may have one PCB per 
+process.
+
+new -> admitted to ready
+ready -> dispatched by scheduler
+running -> exit (termintated), I/O wait event (waiting), interrupted (back to ready)
+waiting -> Reading data from disk, timer, user input. Once I/O completed, back to ready.
+terminated -> Process finishes or encounters error. 
+zombie -> When a process wants to end, it releases its data structures an sends a signal to the 
+parent. It is up to the parent process to release the child. In between sending the SGCHLD signal and being
+ended by the parent, the child is in a zombie state. During this time the kernel verifies that it does in
+fact want to terminate the process.
+*** sleeping : ***
+
+Process Creation Mechanisms : 
+A process can create children.
+
+1) fork() 
+-parent PCB copied into child PCB
+-child continues execution at instruction after fork
+
+2) exec()  
+-calls fork and then calls exec on child
+-replace child image
+-load new program and start PC from first instruction
+
+On Unix systems, init (e.g. systemd implementation) is the parent of all processes.
+On Andoird, Zygote is the daemon which launches app processes
+
+Process Scheduling : 
+There may be multiple ready proceses in the ready queue.
+
+A CPU scheduler determines which one of the ready processes will be dispatched to the CPU to start running 
+and how long it should run for. 
+
+pre-empt : interrupt and save current context 
+schedule : run scheduler to choose next process
+dispatch : switch CPU into new process' context 
+
+The OS must minimize the amount of time spend in pre-empt/schedule/dispatch as well as data structures 
+to store process data. 
+
+Scheduling Alrgorithm Design :
+-> process length (or, how frequently to invoke schedule algorithm)  
+-> metrics to choose next process
+
+I/O : 
+ready queue -> dispatch 
+CPU -> I/O request 
+I/O queue -> I/O operation 
+ready queue
+
+A process can enter the ready queue by :
+-I/O done
+-time slice done
+-new process
+-interrupt occurs 
+
+The CPU scheduler :
+DOES NOT maintain I/O queue (exception is timers)
+DOES NOT generate interrupts that processes wait for 
+DOES decide when to context switch
+DOES maintain ready queue
+
+Can processes interact? Many processes need to communicat, or appliations are comprised of multiple proceses.
+P1 - Web server process
+P2 - Database process
+
+Inter-process communication :
+-transfer data between address spaces
+-maintain isolation and protection
+-flexibility and performance
+
+E.g. Message-passing IPC
+-OS provides communication channel, like shared buffer
+-Processes write/read message to/from channel
+pro -> OS manages, therefore consistent API, e.g. send(), recv()
+con -> overhead from OS management. data duplicated in both processes and buffer
+
+E.g. Shared memory IPC
+-OS establishes shared channel and maps into each address space
+-processes write/read directly with this shared memory, they perceive it as their own
+pro -> OS doesn't need to manage
+con -> re-implement code, reliability/compatibility issues
+
+*** Shared memory has cheap data exchange but expensive memory mapping *** 
+
+
+
