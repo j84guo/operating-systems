@@ -159,22 +159,169 @@ Wait(mutex, cond) {
 	// exit wait operation
 }
 
+Reader/Write example : 
+Multiple reader threads and one writer thread for a shared file.
 
+Mutex counter_mutex; Condition read_phase, write_phase; int resource_counter = 0;
 
+// READERS
+Lock(counter_mutex){
+	while(resource_counter == -1)
+		wait(counter_mutex, read_phase);
+	resource_couner++;
+} // unlock
+// ...read data... (CRITICAL SECTION)
+Lock(counter_mutex){
+	resource_counter--;
+	if(readers == 0)
+		Signal(write_phase);
+} // unlock
 
+// WRITER
+Lock(counter_mutex){
+	while(resource_counter != 0)
+		Wait(counter_mutex. write_phase);
+	resource_counter = -1;
+} // unlock
+// ...write data... (CRITICAL SECTION)
+Lock(counter_mutex){
+	resource_counter = 0;
+	Broadcast(read_phase);
+	Signal(write_phase);
+} // unlock
 
+Critical Section Structure : 
 
+Lock(mutex){
+	while(!predicate_indicating_access_ok)
+		wait(mutex, cond_var)
+	update state => update predicate
+	signal and/or broadcast(cond_var_with_correct_waiting_threads)
+} // unlock
 
+Critical structure with proxy variable : 
+Reaps benefits of Mutexes while allowing multiple threads to read the resource. This implements a more complex sharing scenario.
 
+// ENTER CRITICAL SECTION
+perform critial operation (read / write)
+// EXIT CRITICAL SECTION
 
+//ENTER 
+Lock(mutex){
+	while(!predicate_indicating_access_ok)
+		wait(mutex, cond_var)
+	update predicate
+} // unlock
 
+//EXIT
+Lock(mutex){
+	while(!predicate_indicating_access_ok)
+		wait(mutex, cond_var)
+	signal/broadcast(cond_var)
+} // unlock
 
+Common Pitfalls : 
+-keep track of mutex/condition variables used with a resource
+	-> e.g. mutex_type m1; 
+-check that you are using lock and unlock correctly
+	-> e.g. Did you forget one? Compilers may generate lock warnings.
+-make sure to always use a single mutex to access a single resource
+-check that you are signalling/broadcasting the corect condition	
+-check that you use broadcast vs signal when you need to wakeup multiple threads
+-do you need priority guarantees
 
+Spurious wakeups :
+// todo : learn more
 
+Deadlock : 
+Definition -> Two or more competing threads wait on each other to complete, but none ever do.
+Solution -> 
+(Prevention) Enforce lock order.
+(Detection and recovery) Rollback on lock.
+(Apply ostrich algorithm) Do nothing, think ostrich with head in the sand.
 
+Kernel level threads : 
+Means OS is multithreaded, visible to and managed by kernel.
+OS level services or support for user processes/threads.
 
+User level threads :
+User thread must be related to a kernel level thread, then the Kernel must dispatch the kernel thread.
 
+Multithreading models : 
 
+1) One to one model
+-Each user thread is linked to a kernel thread.
+Pros -> OS sees/understands user threads, synchronization, blocking...
+Cons 
+-> Every operation requires crossing to kernel space (system call)
+-> OS may have limits on policies, thread number, portability
+
+2) Many to one model :
+-All user level threads mapped to a kernel thread
+-User level library decides how to map user threads to kernel threads
+Pros -> Portable, doesn't depend on OS limits/policies because shared library handles thread mapping.
+Cons  
+-> OS has no insights into application needs
+-> One danger is the OS may block entire process if one use thread blocks on I/O
+
+3) Many to many model : 
+Pros -> Best of both worlds
+Cons -> Requires some co-ordination between user and kernel thread managers
+
+Scope of Multithreading : 
+
+System scope 
+-> system wide thread management supported by OS thread managers (e.g. CPU scheduler)
+
+User scope 
+-> user library manages threads within a process
+
+Multi-threading Patterns
+
+1) Boss/Worker Pattern
+-boss assigns work to workers 
+-worker performs entire task
+	->workers don't need to synchronized
+	->boss is the slow point 
+-one option is to use a queue worker (producer/consumer)
+	-> boss doesn't need to track workers anymore
+	-> queue synchronization needed
+
+How many workers?
+-add on demand (can be inefficient) *** Apache *** 	
+-maintain thread pool *** Node.js *** 	
+-static vs dynamic
+
+Pro 
+-> Simple to implement
+
+Con 
+-> Thread pool management overhead. 
+-> Doesn't track locality, i.e. workers are more efficient at performing the same task (cache). 
+
+1.5) Boss/Worker variants
+-all workers equal vs specialized workers
+	-> more boss overhead for sorting tasks, offset by better thread efficiency
+	-> i.e. this technique exploits locality leading to hotter cache
+	-> harder load balancing
+	
+2) Pipelined Pattern
+-thread assigned one subtask
+-entire tasks is a sequence of stages, each executed by a different thread
+-i.e. assembly line
+-throughput determined by slowest stage
+	-> address this by maintaining thread pools per stage to increase slower stages
+	-> shared buffer communication between stages
+
+Pros -> specialization and locality
+Cons -> balancing and synchronization overheads
+	
+3) Layered Pattern
+-each layer performs a group of related tasks 
+-end to end  task must pass through all laters
+
+Pros -> Specialization and locality, less fine grained
+Cons -> Not suitable for all applications, synchronization
 
 
 
