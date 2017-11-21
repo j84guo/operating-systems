@@ -72,13 +72,13 @@ A lock that should be used when accessing shared data. A thread locks a mutex, g
 the shared resource. Other threads are blocked from accessing it. Mutex data structure should contain 
 resource status, list of blocked threads, owner (who has the lock).
 
-// like synchronized in Java?
+// like monitor in Java?
 // common API's have lock(m) and unlock(m) functions
 Lock(mutex) {
 	// code in the lock operation block is the critical section
 	// only one thread may execute this code at a time
 	// other threads trying to lock a mutex are out in a blocked list (sometimes a simple queue)
-}
+} // implicitly frees mutex (these semantics are sprcific to Birell's paper)
 
 Mutex example : 
 list<int> my_list;
