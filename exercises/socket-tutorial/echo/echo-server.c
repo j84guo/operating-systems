@@ -1,6 +1,6 @@
 /*
 *	an echo server
-* 	./server portNumber
+* 	./echo-server port
 */
 
 #include <stdio.h>
