@@ -1,0 +1,15 @@
+There are two types of sockets :
+
+1) Unix sockets are an IPC communication mechanism allowing data transfer (via the kernel) between processes of the same opereating system. They are special files
+   created with capabilities/restrictions facilitating processes to communicate by reading/writing to it.
+ 
+2) Network sockets are a mechanism for communicating between processes over a network, they are an abstraction of an endpoint. Generally sockets are created and used 
+   via an API like the POSIX socket API. A TCP socket encapsulates and IP address and port.
+
+Socket vs Port :
+
+IP address -> Routes data to a specific host on the network.
+Port -> Routes to a specific socket on the host (not necessarily one process).
+Socket -> The object a process uses to talk to the OS about a specific connection, like a file descriptor. 
+
+ 
