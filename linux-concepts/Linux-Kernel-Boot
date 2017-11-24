@@ -1,0 +1,21 @@
+Chapter 5 - The Kernel Boot Process
+
+Online Material : 
+
+bootstraping ->  a simple computer system activating a more complicated computer system
+firmware -> machine instructions hard coded in a known location on a device which know enough to find other instructions
+master boot record -> first 512 bytes of a disk, comprising bootstrap code, partition table, magic number
+	boostrap code : just enough code to find the stage 2 boot loader
+	partition table : contains locations of fisk partitions, as well as whether they are active
+	magic number : checked by BIOS to see if device is bootable (contains bootloader)
+
+
+Overview (BIOS/MBR method, as opposed to newer UEFI/GPT method) :
+-> Computer is turned on and BIOS detects/initialises hardware (POST)
+-> BIOS finds first bootable device (magic number) and runs the code stored in the MBR (446 bytes)
+-> MBR bootstrap code looks in the partition table for the unique active (bootable) partition and finds the bootloader in that file system
+-> The boot loader is a file (as large as needed to load the OS) able to locate the kernel and loads it into memory
+	-> The bootloader may present the user with a list of Kernel's to load, e.g. Ubuntu or Windows
+	-> boot loaders allow dual-booting
+-> Kernel mounts root filesystem and eventually starts init process (first protects its own memory from user processes)
+

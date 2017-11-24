@@ -1,0 +1,90 @@
+Chapter 3 - Devices
+
+Online material :
+
+Introduction :
+The /dev directory contains device nodes, which provide access to devices such as hard disks and resources on devices such as disk partitions. 
+
+-> Block devices support random access to data and buffers for read/write, e.g. hard disks, CD-ROM, flash memory and other addressable   
+   memory devices.
+
+-> Character devices streams data to/from a device, so does not allowing buffering. Random access is also not permitted. The kernel 
+   reads/writes with a character device one byte at a time, e.g. keyboards, mice and terminals. 
+
+Udev device manager :
+Dynamicalls creates/removes device node files at boot time or if you hotplug devices. When creating a node, udev reads the /sys directory for devuce attributes such as label, serial number and bus device number. /etc/udec/udev.conf holds the udec configuration, defining for example udev_root as /dev.
+
+Udev rules :
+Udev uses rules files to determine how it finds devices and creates their names. The udev daemon udevd reads the rules at system startup and loads the rules into memory. When ther kernel discovers a new device, it sends an event action uevent to udevd, which matches the in-memory rules against device attributes from /sys. Rules can specify programs that should run to configure the device. /lib/udev/rules.d 
+
+Proc and Sys : 
+The /proc file system provides an interface to kernel data structures. Originally it was designed to publish process information and some key system attributes required by ps/top/free for example. However it soon became a dumping ground for various system information and gained configuration files. The /sys filesystem is similar to /proc but better structured. It provides uniform exposure and control points to user space. 
+
+3.1) Device files
+The kernel presents many device interfaces to processes through files, aka nodes. 
+For example echo blah > /dev/null sends data to the null device, which is thrown away. 
+Identify a device and its permissions with ls -l
+
+-> Block devices provide data in fixed chunks. sda1 is a disk. With the help of the kernel, processes have random access to block device  
+   data. 
+-> Character devices work with data streams. 
+-> Pipe devices are like character devices, with another process at the end of the I/O stream instead of a kernel driver.
+-> Socket devices are special purpose interfaces that are frequently used for interprocess communication. 
+
+Major and minor numbers help the kernel to identify devices. 
+
+3.2) The sysfs device path
+The traditional unix directory /dev conveniently allows user processes to interact with devices support by the kernel, but it's also simplistic. The sysfs interface provides a uniform view of device based on hardware attributes. While /dev provides control points to use devices, /sys provides detailed information for viewing it. 
+udevadm can be used to query udev information
+
+3.3) dd and devices
+dd is useful for working with block and character devices. It reads from input and writes to an output file or stream, copying data in blocks of fixed size, e.g. dd if=/dev/zero of=new_file bs=1024 count=1
+
+3.4) Device name summary 
+-> query udevd daemon using udevadmn
+-> look for device in /sys
+-> cat /proc/devices to get major/minor number, then go to /dev
+
+3.4.1) Hard disks 
+Most hard disks in a linux system have the sd prefix, e.g. /dev/sda and /dev/sdb. These represent entire disks, ther kernel make seperate files for partitions on a disk, e.g. /dev/sda1 and /dev/sda2
+
+The prefix sd comes from SCSI disk. Small Computer Systems Interface was originally a protocol for communication between disks and other peripherals. Use lsscsi to list SCSI devices addresses, types and device file paths.
+
+3.4.2) CD and DVD drives /dev/sr*
+Linux recognizes most optical storage drives as SCSI devices /dev/sr0, /dev/sr1, etc. They are read only. Writing to discs  use /dev/sg0
+
+3.4.3) PATA hard disks /dev/hd*
+The block devices /dev/hda, /dev/hdb, /dev/hdc, and /dev/hdd are common for older kernel versions/hardware. 
+
+3.4.4) Terminals /dev/tty*, /dev/pts/* 
+Terminals move data between user processes and an I/O device, usually for screen output.       
+@TODO : explore further
+
+3.4.8) Creating device files 
+In modern linux systems, you don't create device files, rather that's done with udev and devtmpfs.
+However, you can make device files with mknod. You must know the device name and major/minor numbers. Creating /dev/sda1 for instance would be done like this, mknod /dev/sda1 b 8 2. In older versions of linux, maintaining static files in /dev was difficult, so udev and devtmpfs were born. 
+
+3.5) udev 
+@TODO : explore further
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+

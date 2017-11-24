@@ -1,0 +1,117 @@
+Chapter 6 - How User Space Starts
+
+Online Material :
+
+Overview : 
+systemd is an init system which manages the user space startup process. It can also be used to manage daemons.
+
+The user space boot process :
+1. init (systemd, system V, upstart...)
+2. essential low level services, like udevd and syslogd
+3. network configuration
+4. mid/high level services, like crond
+5. login prompts
+
+Units  : 
+Units are any resource that systemd knows how to operate on. They can be services, network resources, devices, filesystem mounts, etc. 
+
+Unit files :
+Units are defined using unit files which specify how these resources will be operated on by systemd. System unit files in /lib/systemd/system are usually created by daemon developers and installed automatically. You can override them by placing replacements in /etc/systemd/system 
+
+Types of Units : 
+Units are catrgorized according to the resource they describe. Their files have the suffixes below.
+.service -> describes how to manage a service, e.g. how to start/stop, automatic starting, dependencies
+.socket -> describes a network socket, which always has an associated .service which starts after the socket 
+.mount -> describes a mountpoint managed by systemd 
+.target -> a way to group together multiple units as a goal
+
+File format :
+Unit files use a key value format like directive=value. They have secition denoted by [section-name]
+
+[Unit] first, provides general metadata
+Requires= -> lists units on which this depends, failure to activate dependencies is fatal
+Wants= -> lists units which this would like to be activated as well, although failure to activate the others is not fatal
+Condition= -> conditional activation 
+Before/After= -> order of activation, does not imply dependency
+
+[Install] last, can indicate dependency relationships
+WantedBy=
+RequiredBy=
+
+[Service] (unit type specific sections are named after the unit type)
+Type= 
+-> simple (main process specified in the start line)
+-> forking (service forks a child process, exiting the parent)
+-> oneshot (short process that systemd should allow to finish before proceeding)
+
+Managing services is done with some of the commands below.
+ExecStart= -> full path and args to the command which starts the process 
+Restart= -> conditions when systemd should restart the process
+
+
+[Socket] first sockets are started, then their associated services are started
+Service= -> if the service does not match the .socket name, this specifies it.
+
+[Mount] mount units are named after the directory they control, with / trasnlated to -
+Mount unit files are often automatically created based on the /etc/fstab contents
+What= -> absolute path to resource to be mounted (e.g, hardisk or partition)
+Where= -> absolute path to mount point
+
+Managing daemons : 
+systemctl start nginx.service
+systemctl stop nginx.service
+systemctl reload nginx.service
+systemctl restart nginx.service
+
+Enabling and disabling units : 
+By default, unit files are not started at boot unless they are enabled and tied to a target. Targets are similar to the old system V runlevels in that they define the state of the running OS, e.g. graphical.target or multi-user.target
+By default they are tied to the default target.
+systemctl enable nginx.service
+systemctl disable nginx.service
+
+Getting a system state overview :
+systemctl list-units //lists active units
+systemctl list-units --all //lists all units
+systemctl list-unit-files //all unit files
+systemctl list-dependencies //dependencies for the default target, or you can pass in a specific unit name
+
+Using targets (runlevels) :
+systemctl get-default //lists the default target, which is the root of a dependency tree of all the units to start
+kernel logs are sent to /var/log/kern.log and can be viewed with dmesg
+systemctl list-unit-files --type=target //lists all target units
+systemctl set-default multi-user.target //sets the default target
+
+Stopping and rebooting : 
+systemctl poweroff
+systemctl reboot
+
+6.1) Introduction to init 
+A use space program in /sbin which starts essential system processes. A common implementation is systemd. Systemd is goal oriented, meaning a target and time is defined, then the process resolves dependencies and achieves the target when necessary. Systemd also offers advanced service tracking.
+
+6.2) System V Runlevels 
+Although somewhat obsolete now, runlevels used to identify a machine's state, such as system startup, shutdown, single-user, console-mode.
+
+6.4) systemd
+Service manager which handles regular boot process. Can defer start of services until strictly necessary.
+
+1. systemd loads configuration
+2. determines its boot goal, named default.target
+3. determines all dependenc32ies of the boot goal, including their dependencies and so on...
+4. activates dependencies and boot goal
+5. after boot, systemd can react to system events and activate additional components
+
+6.4.1) unit and unit types
+In addition to operating processes, systemd can also mount filesystems, monitor network sockets, run timers... Each capability is a unit type which can be activated.
+
+Some unit types that perform boot-time tasks :
+-> service units : controls traditional linux daemons
+-> mount units : controls attaching filesystems
+-> target units : controls other units by grouping them
+
+6.4.4) systemd operation 
+The default boot goal is typically a target unit (default.target) that groups together service and mount units as dependencies. 
+systemctl command allows you to start/stop services, list status, ... 
+
+systemctl --list-units -> lists active units
+systemctl status <service name>
+systemctl start/stop/reload

@@ -6,8 +6,10 @@ There are two types of sockets :
 2) Network sockets are a mechanism for communicating between processes over a network, they are an abstraction of an endpoint. Generally sockets are created and used 
    via an API like the POSIX socket API. A TCP socket encapsulates and IP address and port.
 
-Socket vs Port :
+File Handle :
+Handle used to acces a disk file or other I/O resource like a network socket.
 
+Socket vs Port :
 IP address -> Routes data to a specific host on the network.
 Port -> Routes to a specific socket on the host (not necessarily one process).
 Socket -> The object a process uses to talk to the OS about a specific connection, like a file descriptor. 

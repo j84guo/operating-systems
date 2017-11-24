@@ -1,0 +1,84 @@
+Chapter 4 - Filesystems
+
+Online Material : 
+
+Linux filesystem :
+
+*** Note that filesystem can refer to the whole hierarchy of directories or the portion of the whole tree that is located on a single disk partition. The second sense refers to how data storage is achieved. Each type of filesystem has a set of logical rules governing space allocation, metadata, etc. *** 
+
+A linux filesystem contains files arranged on a disk (or other block storage) in directories. Unlike Windows which has the concept of seperate file systems which letter names, linux has a single tree. 
+
+Mounting :
+Why is disk layout important if the filesystem is one big tree? Each block device (disk partition, CD-ROM, floppy disk) has a filesystem on it. The single tree view is created by mounting filesystems from different devices on the tree at mount points. Usually the kernel starts by mounting the filesystem on some disk partition as /. Other partitions can be mounted like /boot, /home, /tmp. /mnt/floppy is for mounting floppy drive filesystems while /media/CD-ROM1 is for optical mounts. Files from other systems can be mounted with NFS.
+
+As an example consider an optical device /dev/sr0 which we want to mount at point /media/cdrom. The mount point must exist prior to mounting the device. Any files already in /media/cdrom are not visible after mounting, but they still exist on the block device which has the mount point and can be viewed when the cd is unmounted.
+
+The filesystem hierarchy standard required certain directories to exist in /.
+boot -> essential command binaries 
+dev -> device files 
+etc -> host specific system configuration
+lib -> shared libraries and kernel modules
+media -> mount point for removable media 
+tmp -> temporary files 
+usr -> secondary hierarchy (user applications?)
+var -> variable date (like logs)
+
+Partitions : 
+The first SCSI and IDE are hardware communication standards, describing the physical disk. MBR and GPT are parititioning methods which can be applied to different types of disk. A partition table is generally used to indicate the addresses of the partitions, as well as the filesystem (rules for accessing and storing data) contained within each. 
+
+Master Boot Record : 
+Traditionally, a hard drive is formatted into 512 byte sectors. All the sectors that can be read without moving the head constitute a track. Disks usually have more than one platter. The collection of tracks on various platters that can be read is called a cylinder. Logical block addressing is a linear adressing method that maps to disks. 
+
+A hard drive is partitioned, unpartitioned space is free. They are named /dev/sda1, /dev/sda2 which are 2 partitions for the first sda device. parted -l shows the nominal geometry of a linux system's secondary storage. 
+
+The master boot record is the first 512 byte sector on the disk. It contains 446 bytes of boostrap code, 64 byte partition table, and 2 byte magic number. MBR is limited to 2 TB disks due to the partition table size.
+
+MBR partitions can be primary, logical or extended. The partition table is located at the master boot record (the first sector) of a disk.This limits its size to 4 partitions. To get more partitions, one primary is converted to an extended partition with logical partitions within it. Logical partitions start at 5, e.g. /dev/sda5... MBR limits the disk size to 2TB. Note that GPT supports 128 partitions and has no size limit.  
+
+GPT : 
+Disks formatted with GPT do not have the concept of geometry like MBR disks. They can have up to 128 partitions and support larger disk size.
+
+Logical Volume Manager : 
+What if your partition sizes don't fit perfectly, or you need more space than a single hard disk? PV's are physical units of space which form VG's. VG's are then partitioned into LV's for mounting. 
+
+-> Physical volumes are whole drives/partitions 
+-> Volume groups are collections of one or more PV's. The space is managed as if it were one large disk, even though underlying PV's are 
+   distributed.  
+-> Logical volumes is analagous to a physical MBR/GPT partition in the sense that it is the unit of space formatted with a particular 
+   filesystem type (like ext4) and is then mounted to the linux filesystem. a LV resides entirely within a VG. 
+
+Youtube Linux Playlist : 
+
+Watched : 
+-> Filesystem types 
+-> MBR
+-> GPT
+-> Processes
+
+Batch 1 :
+-> Creating Filesystems 
+-> Mounting Filesystems 
+-> Swap area management
+-> Logical volume managements
+-> Disk quotas
+
+Batch 2 :
+-> File permissions 
+-> Cron task scheduling
+-> Process prioritization
+-> File archives 
+-> File ownership
+
+
+
+
+
+
+
+
+
+
+
+
+
+
