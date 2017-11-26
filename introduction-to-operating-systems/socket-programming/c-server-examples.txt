@@ -1,0 +1,6 @@
+https://www.daniweb.com/programming/software-development/code/286940/a-http-web-server-in-c
+https://github.com/shenfeng/tiny-web-server
+https://dzone.com/articles/web-server-c
+https://github.com/labcoder/simple-webserver
+https://github.com/CTurt/HTTP
+https://www.ibm.com/developerworks/systems/library/es-nweb/index.html

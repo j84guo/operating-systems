@@ -16,9 +16,9 @@ IP address -> Routes data to a specific host on the network.
 Port -> Routes to a specific socket on the host (not necessarily one process).
 Socket -> The object a process uses to talk to the OS about a specific connection, like a file descriptor. 
 
-/********
-Technical
-********/
+/******************************
+Socket structs and system calls
+******************************/
 
 // File descriptors are of type int
 
@@ -52,7 +52,6 @@ struct sockaddr_in {
 	unsigned char sin_zero[8]; // Pads struct sockaddr_in to the same length as sockaddr, should be zeroed with memset()
 };
 
-
 // ipv4 address only, see in6_addrfor ipv6
 // this structure exists for historical reasons
 struct in_addr {
@@ -69,11 +68,82 @@ inet_pton(AF_INET, "127.0.0.1", &(sa.sin_addr));
 char ipv4[LEN];
 inet_ntop(AF_INET, sa.sin_addr, ipv4, INET_ADDRSTRLEN);
 
-// 1.
+// 1. Used to initialise addrinfo structs (recall addrinfo contains a field ai_address of type sockaddr)
 getaddrinfo(
 	const char* node, // hostname or ip 
 	const char *service, // port
 	const struct addrinfo *hints, // partially filled addrinfo struct 
 	struct addrinfo **res // linked list of results
 )
+
+// 2. The socket() system call creates a socket of some type and returns a file descriptor
+#include <sys/types.h>
+#include <sys/socket.h>
+e.g. int socket(AF_INET, SOCK_STREAM, 0);
+
+// 3. The bind() system call attaches the socket to a specific port
+// note that client applications don't have to call bind as the OS will bind it to an ephemeral port to receive data 
+#include <sys/types.h>
+#include <sys/socket.h>
+int bind(int sockfd, struct sockaddr *my_addr, int addrlen); 
+
+// 4. The connect() system call establishes a TCP connection with a remote first   
+#include <sys/types.h>
+#include <sys/socket.h>
+int connect(int sockfd, struct sockaddr *serv_addr, int addrlen);
+
+// 5. The listen() system call allows a server socket to receive incoming packets
+// note that this is for servers only
+// incoming connections are going to wait in this queue until accept()
+// backlog is the limit on how many can queue up
+int listen(int sockfd, int backlog); 
+
+// 6. The accept() system call is a blocking call which waits for incoming packets and then directs them to a server socket
+// returns the client socket descriptor
+#include <sys/types.h>
+#include <sys/socket.h>
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen); 
+
+// 7. send() and recv() 
+// returns the number of bytes sent, sometimes there may be data left in the socket buffer you need to flush
+int send(int sockfd, const void *msg, int len, int flags); 
+// returns the number of bytes read, 0 means the client has closed the connection
+int recv(int sockfd, void *buf, int len, int flags); 
+
+// 8. close() or shutdown() the socket 
+//close(sockfd) is the standard Linux function for closing a file descriptor
+//shutdown(sockfd, how) lets you choose the direction to close (0 from, 1 to, 2 both, like close())
+
+// 9. getpeername() returns information about the remote socket
+// then use inet_ntop(), getnameinfo(), or gethostbyaddr() to get the remote ip address
+#include <sys/socket.h>
+int getpeername(int sockfd, struct sockaddr *addr, int *addrlen); 
+
+// 10. gethostname() 
+// then use gethostbyname() or getaddrinfo() to get your local ip
+#include <unistd.h>
+int gethostname(char *hostname, size_t size); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
