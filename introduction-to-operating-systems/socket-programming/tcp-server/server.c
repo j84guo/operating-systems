@@ -32,7 +32,6 @@ int main(int argc, char *argv[]){
 
 	puts("Listening for incoming connections...");
 	c = sizeof(struct sockaddr_in);
-	
 
 	while((new_socket = accept(socket_desc, (struct sockaddr*) &client, (socklen_t*)&c))){
 		puts("Connected accepted");

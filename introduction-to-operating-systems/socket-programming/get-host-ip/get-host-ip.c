@@ -1,3 +1,9 @@
+/*
+*
+*	Usage : ./get-host-ip <hostname>
+*
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>

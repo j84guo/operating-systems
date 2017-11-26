@@ -1,13 +1,3 @@
-/* ============================================================================
- * Introduction to Operating Systems
- * CS 8803, GT OMSCS
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited.
- * 
- * "priority-readers-and-writers.c"
- * Implements the "Priority Readers and Writers" in Problem Set 1.
-============================================================================ */
-
 // function signatures
 #include "priority-readers-and-writers.h"
 
@@ -23,31 +13,32 @@
 #define NUM_WRITES 5 // writes per writer
 
 // GLOBAL SHARED DATA
-unsigned int gSharedValue = 0; // shared variable 
-pthread_mutex_t gSharedMemoryLock = PTHREAD_MUTEX_INITIALIZER; // variable's mutex
-pthread_cond_t gReadPhase = PTHREAD_COND_INITIALIZER; // read condition
-pthread_cond_t gWritePhase = PTHREAD_COND_INITIALIZER; // write condition
-int gWaitingReaders = 0, gReaders = 0; // number of readers and waiting readers
+unsigned int gSharedValue = 0; // shared variable
+pthread_mutex_t gSharedMemoryLock = PTHREAD_MUTEX_INITIALIZER; // mutex for shared variable
+pthread_cond_t gReadPhase = PTHREAD_COND_INITIALIZER; // read condition (readers wait for this)
+pthread_cond_t gWritePhase = PTHREAD_COND_INITIALIZER; // write condition (writers wait for this)
+int gWaitingReaders = 0; // number of waiting readers
+int gReaders = 0; // number of readers
 
-// another for of main method (char** is an array of strings)
+// main function
 int main(int argc, char **argv) {
 
 	int i;
 
 	// thread id's
-	int readerNum[NUM_READERS]; 
-	int writerNum[NUM_WRITERS]; 
+	int readerNum[NUM_READERS];
+	int writerNum[NUM_WRITERS];
 
-	// arrays of reader/writer threads
+	// reader and writer threads
 	pthread_t readerThreadIDs[NUM_READERS];
 	pthread_t writerThreadIDs[NUM_WRITERS];
-	
+
 	// seed the random number generator
 	srandom((unsigned int)time(NULL));
 
 	// start the reader threads
 	for(i = 0; i < NUM_READERS; i++) {
-		readerNum[i] = i; 
+		readerNum[i] = i;
 		pthread_create(&readerThreadIDs[i], NULL, readerMain, &readerNum[i]);
 	}
 
@@ -55,28 +46,33 @@ int main(int argc, char **argv) {
 	for(i = 0; i < NUM_WRITERS; i++) {
 		writerNum[i] = i;
 		pthread_create(&writerThreadIDs[i], NULL, writerMain, &writerNum[i]);
-	}	
+	}
 
 	// wait on readers
 	for(i = 0; i < NUM_READERS; i++) {
 		pthread_join(readerThreadIDs[i], NULL);
 	}
 
-	// wait on writers 
+	// wait on writers
 	for(i = 0; i < NUM_WRITERS; i++) {
 		pthread_join(writerThreadIDs[i], NULL);
 	}
 
-  return 0;		
+  return 0;
 }
 
+// note that by using a lock on a proxy variable (as opposed to the shared resource),
+// the reader threads can read simultanriously, yet entering and exiting the critical
+// section is done in an orderly fashion (no data race)
+// priority is given to readers, so only if there are no readers do they signal to the writers
 void *readerMain(void *threadArgument) {
 
-	// thread id 
+	// thread id
 	int id = *((int*)threadArgument);
-	int i = 0, numReaders = 0;	
+	int i = 0;
+	int numReaders = 0;
 
-	// perform all reads 
+	// perform all reads
 	for(i = 0; i < NUM_READS; i++) {
 
 		// wait so that reads and writes do not all happen at once
@@ -89,7 +85,7 @@ void *readerMain(void *threadArgument) {
 		  		pthread_cond_wait(&gReadPhase, &gSharedMemoryLock);
 		  	}
 		  	gWaitingReaders--;
-		  	numReaders = ++gReaders;	  	
+		  	numReaders = ++gReaders; // capture the number of readers at the moment this thread starts reading
 		pthread_mutex_unlock(&gSharedMemoryLock);
 
 		// read data
@@ -100,7 +96,7 @@ void *readerMain(void *threadArgument) {
 		  	gReaders--;
 		  	if (gReaders == 0) {
 		  		pthread_cond_signal(&gWritePhase);
-		  	}	  	
+		  	}
 	  	pthread_mutex_unlock(&gSharedMemoryLock);
 	}
 
@@ -110,13 +106,14 @@ void *readerMain(void *threadArgument) {
 void *writerMain(void *threadArgument) {
 
 	int id = *((int*)threadArgument);
-	int i = 0, numReaders = 0;	
+	int i = 0;
+	int numReaders = 0;
 
 	for(i = 0; i < NUM_WRITES; i++) {
 	  // Wait so that reads and writes do not all happen at once
-	  usleep(1000 * (random() % NUM_READERS + NUM_WRITERS));
+	   usleep(1000 * (random() % NUM_READERS + NUM_WRITERS));
 
-		// Enter critical section
+	  // Enter critical section
 	  pthread_mutex_lock(&gSharedMemoryLock);
 	  	while (gReaders != 0) {
 	  		pthread_cond_wait(&gWritePhase, &gSharedMemoryLock);
@@ -131,14 +128,17 @@ void *writerMain(void *threadArgument) {
 	  // Exit critical section
 	  pthread_mutex_lock(&gSharedMemoryLock);
 	  	gReaders = 0;
-	  	if (gWaitingReaders > 0) {
+
+                // notice how priority is given to the readers, we broadcast to readers if any are waiting
+		// only if there are no readers do we signal another write 
+		if (gWaitingReaders > 0) {
 	  		pthread_cond_broadcast(&gReadPhase);
 	  	}
 	  	else {
 	  		pthread_cond_signal(&gWritePhase);
 	  	}
 	  pthread_mutex_unlock(&gSharedMemoryLock);
-  }	
+  }
 
-  pthread_exit(0);	  
+  pthread_exit(0);
 }
