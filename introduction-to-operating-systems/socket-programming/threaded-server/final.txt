@@ -1,0 +1,1 @@
+Final declares a constant, a non-extendable class or a non-overridable method.
