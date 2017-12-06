@@ -1,0 +1,101 @@
+/****************************
+Operating System Structures :
+****************************/
+
+OS organization can be viewed in two ways.
+1. services
+2. interface to users/programers
+3. components and interconnections
+
+System Stack :
+user interfaces -> GUI, batch, command line
+system calls 
+services -> program execution, I/O operations, file systems, communication, resource allocation, accounting, error detection, protection and security
+os
+hardware
+
+OS User Services : 
+User interface - GUI, batch, command line
+Program Execution - load a program into memory and execute it
+I/O Operations - running progams may require files, I/O devices, etc. and an interface to perform I/O
+File System manipulation - read, write, create, delete, search, information, permissions
+Communications - inter-process communication (shared memory or message passing)
+Error detection - terminate process or provide error code to process for correction
+
+OS System Services :
+Resource allocation - share between multiple jobs/users. Some may have special allocation code (CPU, memory, files) while others may have much more general
+request/release code (I/O devices) 
+Accounting - track user/process resource usage
+Protection and Security - protection defines access roles while security requires authentication into those roles
+
+User and OS Interface :
+
+Command line 
+-> known as shells (bourne, c, bourne-again, etc.)
+-> the command interpreter is a special user space program which communicates with the kernel
+-> the interpreter itself may contain code for a command (parse parameters to determine system calls) 
+-> most commands however are implemented as stand alone user programs that the interpreter invokes
+
+GUI
+-> desktop, touch
+
+System Calls :
+-interface to ther services provided by the OS 
+-generally routines written in C/C++ or even assembly
+-system calls are made by a user space library, which application programmers use (POSIX API)
+-generally, the API makes the appropriate system calls
+-the posix api functions may be very similar to the actual system calls (architecture specific assembly routies)
+
+Types of System Calls :
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

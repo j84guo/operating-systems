@@ -1,0 +1,320 @@
+/*************************
+Chapter 1 : Introduction :
+*************************/
+ 
+Introduction : 
+ 
+An OS manages hardware on behalf of the user and provides an environment for user processes to execute. Their internal organization 
+varies greatly between different OS's and are very complex. The design of an OS requires very clear goals which form the basis for 
+choices among various algorithms and strategies. The OS is divided into components with carefullt defined inputs, outputs and functions.
+
+Mainframes - optimize hardware utilization
+Mobile Devices - balance between the two
+Personal Computers - optimize convenience
+
+
+What OS's do : 
+
+Computer systems are made up of hardware, operating system, central processing unit, memory and I/O devices. Application programs define
+how these resources are used to solve problems. The OS co-ordinates resource usage among he user programs.
+
+-resource allocator (CPU, memory, disk, network)
+-control program (ensure user programs operate safely)
+
+
+History :
+
+-started as an experiment to calculate quickly
+-moved to fixed purpose uses like code breaking, trajectory plotting, census calculation
+-then became general purpose main frames (birth of the modern operating system)
+-Moore's law (1960's) predicted the number of transistors on an integrated circuit would double every 18 months
+	-> Note that as of 2017 we are seeing that this law may not hold forever, as the limits of current natural science knowledge are 
+	   approached. Quantum computing may be the next area of exploration regarding computer performance.
+
+	   
+Definition : 
+ 	   
+kernel and system programs (programs which provide services to other programs, as opposed to users)	   
+
+	   
+Computer System Organization : 
+
+Serveral CPU's and device controllers connected through a common bus that provides access to shared memory, synchronized by a memory
+controller. 
+
+
+Boot :
+
+When powered up, the boostrap program (fimrware stored in ROM/EEPROM) initializes the system, from CPU registers to device controllers
+and memory contents. The bootstrap program loads the kernel into memory. Once the kernel is running, it can start providing services 
+to the system and users.
+	   
+	   
+Interrupts :	   
+	   
+The kernel responds to interrupts, either hardware interrupts or application system calls. Then the CPU is interrupted, it stops
+what it's doing and transfers execution to a specific location. The fixed location usually contains the starting address of a generic 
+service routine which find the appropriate instructions to execute for the interrupt. After the routine completes, execution resumes
+at the interrupted instruction (saved before the ISR).
+	   
+	   
+Storage Structure : 
+
+The CPU loads instructions from memory, RAM is usually implemented with DRAM semiconductor technology. A von Neumann architecture 
+fetches instruction from memory and stores it in the instruction register. The instruction is decoded and may cause operands to be 
+fetched from memory to registers. The instruction's result may be stored back into memory.
+
+Usually main memory is not large enough to hold all programs and data permanently. It is also volatile, meaning data is lossed after 
+power is disconnected. Therefore secondary storage (e.g. disk) holds large quantities of data permanently.    
+	  
+Other types of storage include cache memory, CD-ROM, etc. We can organize storage types in a hierarchy :
+registers, cache, main memory, SSD, hard disk, optical disk, magnetic tapes
+
+
+I/O Structure : 
+
+The CPU is connected via system bus to serveral device controllers. These are responsible for a specific type of device and maintains 
+some local buffer and special purpose registesr. Typically OS's have a device driver for each device controller. The driver 
+understands its controller and provides the rest of the OS with an interface to the device. 
+
+To start I/O operation, the driver loads appropriate registers within the controller. The controller examines these registers to 
+determine what action to take. It starts the specified data transfer from device to ocal buffer and then informs the driver via an
+interrupt that is has the data. The driver returns control to the operating system (possibly returning the data or a pointer to it)
+
+The above interrupt-driven technique works for small data transfers. Direct memory access, which allows hardware to access memory, is 
+used to move larger blocks.     
+
+
+Computer System Architecture :
+
+1. Single Processor  
+In the past, most computers had a single general purpose processor. There are also specialized processors which run a limited instruction
+set and do not control user processes, e.g. disk-controller microprocessor implements disk queue/scheduling, keyboard microprocessor
+converts keystrokes into codes sent to the CPU. 
+
+2. Multiple Processors
+Two or more processors in close communication, sharing system bus, clock, memory, etc. 
+-> increased throughput 
+-> economy of scale 
+-> increased reliability
+Asymmetic multiprocessing - boss processor assigns tasks to workers
+Symmetric multiprocessing - each processor performs all tasks, from system functions to user processes 
+
+3. Multicore 
+Multiple processor cores on one chip (enables parallel programming)
+
+4. Blade servers 
+Multiple processor and I/O boards are placed in the same chassis. Each board boots independently and runs its own 
+OS. 
+
+
+Clustered Systems :
+
+Multiple nodes joined together (loosely coupled). Generally share storage and communicated via LAN. Provides high-availability service,
+redundancy and high performance computing.
+
+Asymmetric clustering - one machine on hot standby mode, others run applications
+Symmetric clustering - multiple nodes running applications and monitoring each other
+
+
+Operating System Structure : 
+
+Multiprogramming - organizing jobs so that the CPU is always busy, i.e. changes jobs when one blocks 
+Time sharing (multitasking) - Extends multiprogramming b performing frequent context switches. This is common for interactive operating	
+							  systems
+Process - a program loaded into memory 
+
+Multiprogramming and time sharing require that several jobs be kept in memory simultaneiously. If there are more jobs then memory,
+job scheduling decides which ones to load. Having multiple programs in memory requires memory management. To ensure reasonable 
+response time, the OS performs swapping, whereby processes are swapped from memory into disk. Virtual memory allows executing a process
+that is not completely in memory, enabling users to run programs that are larger than actual physical memory. It also separates logical
+from physical memory, freeing programmers from thinkg of overlap with other programs. Some other things a time sharing system needs are
+a file system, disk and resource management.
+
+
+Operating System Operations : 
+
+Modern OS's are interrupt driven. If there are no processes to execute, I/O devices to service, users to respond, the OS just waits.
+Events are signalled by interrupts and traps. A trap (exception) is a software generated interrupt due to an error (e.g. invalid 
+memory access or division by zero) or by a user program request. For each interrupt, specific segments of code execute (interrupt 
+service routine). 
+
+
+Dual Mode and Multimode :
+
+We distinguish between OS and user code. Most hardware supports different modes of execution. At the very least we need kernel mode
+and user mode.  A mode bit indicates the current mode. At boot time, the hardware starts in kernel mode. The OS is the nloaded and starts
+user processes in user mode. Whenever an interrupt/trap occurs, hardware switches from user to kernel.
+
+Certain dangerous machine instructions are privileged, so only the kernel can execute them. When a user program tries to run a privileged
+instruction, the hardware traps it and sends switches to the kernel. Examples include I/O control, timer and interrupt management.
+
+System calls let a user program ask the OS to perform reserved tasks. Usually it is a trap to a specific location in the interrupt vector.
+Control passes through the interrupt vector to a service routine in the OS and the mode but is set to kernel mode. The kernel examines
+the interripting instructin to determine which system call occurred, executes it, then returns control to the instruction after the 
+system call. 
+
+
+Timer : 
+
+Timers prevent user programs do not execute indefinitely.
+
+
+Process Management : 
+
+A process needs resources like CPU, memory, files, I/O device to accomplish its task. These are allocated when the process is created, 
+along with initialization information. The resources are reclaimed by the OS after process termination.\
+
+Note that a program itself is not a process, it is a passive entity, data and instruction stored on disk. A process is a program that 
+is loaded into memory and actively running on a CPU. A single threaded process has one program counter (PC) specifying the next 
+intruction. Execution of a thread's instructions is sequential. Multi-threaded processes have multiple program counters each for a thread.
+So the process is a unit of work for the system. Some processes are OS processes (those that execute system code) while others are 
+user processes (user code). Multiplexing a single CPU allows these to run concurrently. The OS is responsible for the following :
+
+-scheduling processes/threads on the CPU's  
+-creating and deleting user/system processes
+-suspending/resumingprocesses 
+-mechanisms for process synchronization
+-mechanisms for process communication 
+
+
+Memory Management : 
+
+Large array of bytes (thousands to billions) each with its own address. The data stored in memory is quickly accessible and shared by CPU
+and I/O devices. CPU reads instructions from memory. Generally it is the only large storage the CPU can address directly. Disk data 
+must be brought to memory before the CP U can process it. 
+
+For a program to execute, it must be mapped to physical addresses and loaded to memory. Physical memory is shared by multiple programs
+Differnet memory management strategies are used depending on the system's characteristics. Generally, the os must :
+-keep track of which parts of memory are currently being used and by who
+-deciding which processes/data move in and out of memory
+-allocating/deallocating
+
+
+Storage Management :
+
+The OS abstracts physical properties of storage devices using the concept of files. 
+-creating/deleting files/directories
+-file/directory manipulation 
+-mapping files to secondary storage
+-backing up files on non volatile media
+
+Caching strategy is important to the performance of a system. Algorithms are used to precit instructions/data that will likely be 
+needed next and store them in faster storage. E.g. memory is a cache for disk and cpu's have caches for memory. A challenges that 
+arises is cache coherency. 
+
+
+Protection and Security :
+
+Operating systems must also be concerned with protecting and securing the operating system and users. Protection measures control the access of processes or users to the resources made 
+available by the computer system. Security measures are responsible for defending a computer system from external or internal attacks.
+
+
+Data Structures! : 
+
+Several data structures that are fundamental to computer science are widely used in operating systems, including lists, stacks, queues, trees, hash functions, maps, and bitmaps.
+
+
+Computing Models :
+
+Computing takes place in a variety of environments. Traditional computing involves desktop and laptop PC s, usually connected to a computer network. Mobile computing refers to computing on 
+handheld smartphones and tablet computers, which offer several unique features. Distributed systems allow users to share resources on geographically dispersed hosts connected via
+a computer network. Services may be provided through either the client–server model or the peer-to-peer model. Virtualization involves abstracting a computer’s hardware into several different 
+execution environments. Cloud computing uses a distributed system to abstract services into a “cloud,” where users may access the services from remote locations. Real-time operating
+systems are designed for embedded environments, such as consumer devices, automobiles, and robotics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+
+
+
+
+
+
+	   
+	   
+	   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
