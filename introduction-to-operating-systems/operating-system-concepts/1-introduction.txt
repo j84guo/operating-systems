@@ -204,8 +204,24 @@ needed next and store them in faster storage. E.g. memory is a cache for disk an
 arises is cache coherency. 
 
 
+Protection and Security :
+
+Operating systems must also be concerned with protecting and securing the operating system and users. Protection measures control the access of processes or users to the resources made 
+available by the computer system. Security measures are responsible for defending a computer system from external or internal attacks.
 
 
+Data Structures! : 
+
+Several data structures that are fundamental to computer science are widely used in operating systems, including lists, stacks, queues, trees, hash functions, maps, and bitmaps.
+
+
+Computing Models :
+
+Computing takes place in a variety of environments. Traditional computing involves desktop and laptop PC s, usually connected to a computer network. Mobile computing refers to computing on 
+handheld smartphones and tablet computers, which offer several unique features. Distributed systems allow users to share resources on geographically dispersed hosts connected via
+a computer network. Services may be provided through either the client–server model or the peer-to-peer model. Virtualization involves abstracting a computer’s hardware into several different 
+execution environments. Cloud computing uses a distributed system to abstract services into a “cloud,” where users may access the services from remote locations. Real-time operating
+systems are designed for embedded environments, such as consumer devices, automobiles, and robotics.
 
 
 
