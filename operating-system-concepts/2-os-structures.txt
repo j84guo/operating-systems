@@ -25,7 +25,7 @@ Error detection - terminate process or provide error code to process for correct
 OS System Services :
 Resource allocation - share between multiple jobs/users. Some may have special allocation code (CPU, memory, files) while others may have much more general
 request/release code (I/O devices) 
-Accounting - track user/process resource usage
+Accounting - track user/process resource usagei
 Protection and Security - protection defines access roles while security requires authentication into those roles
 
 User and OS Interface :
@@ -45,9 +45,18 @@ System Calls :
 -system calls are made by a user space library, which application programmers use (POSIX API)
 -generally, the API makes the appropriate system calls
 -the posix api functions may be very similar to the actual system calls (architecture specific assembly routies)
+-parmaeters to the OS may be passed in registers, as a pointer to a block of memory, or pushed onto a stack.
 
 Types of System Calls :
--
+
+1. process control
+
+
+2. file manipulation
+3. device manipulation
+4. information maintenance
+5. communications
+6. protection
 
 
 
