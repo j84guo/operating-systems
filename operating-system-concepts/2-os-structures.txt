@@ -50,37 +50,87 @@ System Calls :
 Types of System Calls :
 
 1. process control
-
+-running program needs to be able to halt its own execution, either normally with end() or abnormally with abort()
+-fork()
+-exit()
+-wait()
 
 2. file manipulation
+-open(), read(), write(), close()
+-get_file_attributes(), set_file_attributes()
+-move(), copy()
+
 3. device manipulation
+-OS resources can be thought of as devices, either physical (disk drives) or abstract (files)
+-ioctl(), read(), write()
+-in unix, devices are represented by files!
+
 4. information maintenance
-5. communications
+-getpid()
+-alarm()
+-sleep()
+-memory, disk space, processes/threads etc.
+
+5. communication (IPC)
+-pipe()
+-shm open()
+-mmap()
+
+Message passing :
+-useful for smaller amounts of data
+-the sender must identify the recipient, process id, hostname, ip
+Shared memory :
+-maximizes communication speed
+-processes read/write to a common memory block
+
 6. protection
+-control access to resources (files, disks)
+-set_permission(), get_permission() 
+-allow_user(), deny_user()
+-chmod()
+-umask()
+-chown()
 
+System Programs : 
+File management -  manipulate files and directories
+Status information - resource utilization (cpu, network, disk), date, users
+File modification - text editors
+Programming language support - compilers, assemblers, debuggers, interpreters
+Prorgram loading and execution - absolute loaders, relocatable loaders, linkage editors, and overlay loaders
+Communications - virtual connections among processes, users, and computer systems
+Background services (daemons) - network daemons, system monitoring services
 
+Application Programs : 
+Common operations, e.g. browsers, word processors, databases, etc.
 
+OS Design and Implementation : 
 
+Design goals  
+-hardware, type (batch, time sharing, single/multi user, distributed, real time, general purpose)
+-user and system goals
 
+Mechanisms and Policies  
+-separation between mechanism (how) and policy (what)
 
+Implementation
+-early OS's were written in assembly
+-now most are written in C while some are in C++
+-utilities can be partly written in python/perl 
+-major performance improvements in operating systems are more likely to be the result of better data structures and 
+ algorithms than of excellent assembly-language code
 
+ 
+OS Structure : 
+monolith, layered, microkernel, modules
 
+OS Debugging : 
+program failures are logged
+performance tuning can be done based on traces of system behaviour
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+OS Boot : 
+For the computer system to begin running, the CPU must initialize and start executing the bootstrap program in firmware.
+The bootstrap can execute the operating system directly if the operating system is also in the firmware, or it can complete a sequence in which it 
+loads progressively smarter programs from firmware and disk until the operating system itself is loaded into memory and executed.
 
 
 

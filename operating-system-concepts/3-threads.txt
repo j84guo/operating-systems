@@ -1,0 +1,22 @@
+/*******
+Thread :
+********/
+
+A thread is a flow of control within a process. A multithreaded process contains several different flows of control within the same address space. 
+The benefits of multithreading include increased responsiveness to the user, resource sharing within the process, economy, and scalability factors, 
+such as more efficient use of multiple processing cores.
+
+User-level threads are threads that are visible to the programmer and are unknown to the kernel. The operating-system kernel supports and manages
+kernel-level threads. In general, user-level threads are faster to create and manage than are kernel threads, because no intervention from the kernel is
+required.
+
+Three different types of models relate user and kernel threads. The manyto-one model maps many user threads to a single kernel thread. The one-to-one
+model maps each user thread to a corresponding kernel thread. The many-tomany model multiplexes many user threads to a smaller or equal number of
+kernel threads.
+
+Thread libraries provide the application programmer with an API for creating and managing threads. Three primary thread libraries are in common
+use: POSIX Pthreads, Windows threads, and Java threads. In addition to explicitly creating threads using the API provided by a
+library, we can use implicit threading, in which the creation and management of threading is transferred to compilers and run-time libraries. Strategies 
+for implicit threading include thread pools, OpenMP, and Grand Central Dispatch. Multithreaded programs introduce many challenges for programmers,
+including the semantics of the fork() and exec() system calls. Other issues include signal handling, thread cancellation, thread-local storage, and
+scheduler activations.
