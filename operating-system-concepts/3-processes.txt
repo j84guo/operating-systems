@@ -1,0 +1,85 @@
+/**********
+Processes :
+**********/
+
+Introduction :
+
+A program in execution, the unit of work in a modern time-sharing operating system.  
+
+Include code, processor registers, process stack (temporary data such as function parameters, return addresses, and local variables), data section (global) and heap (dynamically allocated 
+memory). Programs are static files, processes are programs loaded in memory and running.   
+
+
+Process State :
+
+New - created
+Running - instructions executing in CPU
+Waiting - waiting on I/O
+Ready - waiting to be assigned to a processor 
+Terminated - finished execution
+
+
+Process Control Block : 
+
+Represents a process in the kernel.
+
+process state - states of the process lifecycle 
+program counter - address of next instruction
+cpu registers - PC, IR, SP, normal registers
+cpu scheduling information - priority, pointers to scheduling queues
+memory management information - base/limit registers, page tables
+accounting information - cpu use, process id
+i/o status information - open files, I/O devices used by the process
+
+
+Threads :
+
+Processes can have multiple threads of execution allowing multiple tasks to be performed concurrently. In this case the PCB is expanded to include information for each thread.
+
+
+Process Scheduling : 
+
+The objective of multiprogramming is to have at least one process executing on each processor at any time. Time sharing seeks to switch the processes (context switch) so frequently that the
+use can perform do multiple things at concurrently. The process scheduler selects a ready process to dispatch to a CPU.
+
+
+Scheduling Queues :
+
+job queue, ready queue, device queue
+
+
+
+Schedulers :
+
+short term - memory to cpu
+medium term - swap
+long term - disk to memory (batch os)
+
+
+Context Switch :
+
+Preserving the state of a process to run another process, but switch back to the original later. (i.e. PCM information like registers, address space)
+
+
+Process Creation :
+
+The init process is the parent of all user processes. In general, child processes need resources. These can be allocated by the OS, or even a partition of the parent's. The parent may also 
+provide initialization data. A parent may execute concurrently with children, or wait for the children to finish. Additionally, the child may either be a duplicate of the parent or have a new 
+program loaded into it. 
+
+A new process is created by the fork() system call. The new process consists of a copy of the address space of the original process. This mechanism allows the parent process to communicate 
+easily with its child process. Both processes (the parent and the child) continue execution at the instruction after the fork() , with one difference: the return code for the fork() is zero 
+for the new (child) process, whereas the (nonzero) process identifier of the child is returned to the parent. The child may call exec() to overwrite its memory with a new process, or it
+can run the same code as the parent, in which case the two processes are running the same source code! Of course, each has its own address space and data. 
+
+
+Process termination : 
+
+A process terminates when it finishes executing its final statement and asks the operating system to delete it by using the exit() system call. At that point the child may return a status
+to the parent via wait() and releases its resources . 
+
+A process that terminates releases it memory data structures, but the PCB block remains until its parent calls wait().
+Another way for termination to occur is the parent calling kill() with an appropriate signal. Zombie processes are children who have terminated, but whose parents have no called wait(). 
+
+
+
