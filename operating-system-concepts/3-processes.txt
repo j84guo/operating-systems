@@ -82,4 +82,76 @@ A process that terminates releases it memory data structures, but the PCB block 
 Another way for termination to occur is the parent calling kill() with an appropriate signal. Zombie processes are children who have terminated, but whose parents have no called wait(). 
 
 
+Inter Process Communication :
+
+Processes can be independent or co-operating. Obviously, any processes using IPC are co-operating. The two main IPC techniques are message passing and shared memory. In message passing,
+processes exchange messages, co-ordinated by the kernel using system calls, where as shared memory only requires initial system calls to setup shared memory, then processes communicate
+by reading/writing to it. Note that this requires the processes to have access to each other's memory, because the shared region is usually within the address space of the processes.
+
+Recent research on systems with several processing cores indicates that message passing provides better performance than shared memory on such systems. Shared memory suffers from cache 
+coherency issues, which arise because shared data migrate among the several caches. As the number of processing cores on systems increases, it is possible that we will see message
+passing as the preferred mechanism for IPC.
+
+
+Shared Memory :
+-shared region of memory usually within the process' address space
+-process protection rules relaxed
+
+Message Passing :
+-either os provides message passing facility, e.g. send(message) receive(message) 
+-or processes share memory and application programmer writes code to access that region
+
+Naming :
+direct communication - process explicitly specifies recipient (tricky to maintain due to hardcoded process id) 
+indirect communication - messages sent to ports  
+
+Synchronization :
+blocking send - sending process until recipient receives
+nonblocking send - sending process send and resumes operation 
+blocking receive - receiver blocks until the message is available
+nonblocking receive - reveiber either retrieves a valid message or null
+
+Buffering :
+Whether direct or indirect, messages reside in a temprary message queue. 
+zero capacity - sender blocks until recipient receives
+boudned capacity - only when the queue is full does the sender block
+unbounded capacity - sender just inserts into the queue
+
+
+Client Server Communication : 
+
+1. Sockets  
+A socket is an abstraction used by a programming language to tell the operatign system to send/receive data over a network. Thus the socket represents an endpoint in a (generally TCP) 
+connection, represented by an IP address and a port number. In unix, network sockets are treated as files that can be written to and read from.
+
+2. Remote Procedure Call
+The semantics of RPC s allows a client to invoke a procedure on a remote host as it would invoke a procedure locally. The RPC system hides the details
+that allow communication.  
+
+3. Pipes 
+A pipe acts as a conduit allowing two processes to communicate. Pipes were one of the first IPC mechanisms in early UNIX systems. They typically provide
+one of the simpler ways for processes to communicate with one another, although they also have some limitations. In implementing a pipe, four issues must be considered:
+
+-bidirectional vs unidirectional 
+-half duplex or full duplex 
+-parent child relation between processes
+-local or network
+
+ordinary pipes -  producer/consumer communication, unidirectional, read end and write end, typically used for parent to child communication 
+
+named pipes (FIFO) - no parent/child relationship. bidirectional, appear as files in UNIX, local processes only  
+
+
+POSIX Shared Memory :
+
+POSIX shared memory is organized using memory-mapped files, which associate the region of shared memory with a file. A process must first create a shared-memory object using the 
+shm_open(name, O CREAT | O RDWR, 0666) system call. Once the object is established, the ftruncate() function is used to configure the size of the object in bytes. 
+
+
+
+
+
+
+
+
 
