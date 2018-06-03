@@ -119,6 +119,10 @@ Lock(m){
 modified condition variable code
 ************/
 
+// mutex m locks any access to the shared list 
+// therefore when acquired, we can check the list size directly
+//  
+
 //consumer : print_and_clear
 Lock(m){
 	while(my_list.not_full())
