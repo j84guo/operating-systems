@@ -1,18 +1,18 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
-# reading lines 
+# reading lines
 # see help read (read is a bash builtin)
 cat ./data.txt | while read line; do
   echo $line
 done
 
-# variables (no spaces so the variable is not read as a command) 
+# variables (no spaces so the variable is not read as a command)
 NAME="Jackson"
 echo $NAME
 echo "$NAME"
 echo "${NAME}"
 
-# string quotes 
+# string quotes
 echo "a double quoted string"
 echo 'a single quoted string'
 
@@ -34,21 +34,21 @@ echo "Substituting function output: $(f1)"
 # [ is an alias for test command, and ] indicates the end of the expression
 # [[ (followed by ]]) is a bash built in which can replace the external call to test
 s="my string"
-if [ -s "$s" ]; then 
+if [ -s "$s" ]; then
   echo "string is empty"
-elif [ -n "$s" ]; then 
+elif [ -n "$s" ]; then
   echo "string is not empty"
 fi
 
-# brace expansion 
+# brace expansion
 echo {A,B}.sh
 echo {A,B}
 echo {1..10}
 
 # globbing (filename expansion)
-echo * 
+echo *
 
-# for loops 
+# for loops
 for i in ./*.sh; do
   echo $i
 done
@@ -57,10 +57,13 @@ for i in {1..5}; do
   echo $i
 done
 
-# while loops 
+for (( i=0; i<100; ++i )); do
+  echo $i
+done
+
+# while loops
 i=0
 while [ "$i" -lt 10 ]; do
   echo $i
   i=$((i+1))
 done
-
