@@ -1,0 +1,167 @@
+Scheduling :
+
+In computing scheduling is the method by which work (threads, processes, data
+flows) are assigned onto hardware resources (processors, network links). A
+scheduler carries out the assignment policy.
+
+Schedulers may allocate processing time based on priority or give fair
+processing time. Their goal may be too maximize throughput or minimize latency.
+
+A process scheduler permits an operating system to multitask, i.e. execute
+multiple processes concurrently. It usually has the ability to pause a running
+process, move it to the back of the running queue (in main memory) and context
+load a new one. This would be known as a pre-emptive scheduler, as opposed to a
+co-operative one.
+
+A long term scheduler, i.e. job scheduler, (less frequent) moves processes from
+the job pool (memory data structure pointing to programs on disk) into the ready
+queue (memory). Note that long term schedulers are less present in time sharing
+systems. The short term scheduler, i.e. cpu scheduler (more frequent) selects
+processes from the ready queue and allocates a processor to them. Finally, a
+medium term scheduler controls when a process which is blocked or of low
+priority is swapped to swap space and brought back onto RAM.
+
+Scheduling algorithms distribute resources among parties which request them.
+They are used in routers (packet traffic) and operating systems (process/thread
+scheduling). Their main purpose is to minimize resource starvation while
+maintaining fair allocation.
+
+FIFO
+-queue of tasks which execute in ordered
+-scheduling overhead is low, since context switches only occur after termination
+-throughput may be low, since blocking processes may still occupy the CPU
+-no prioritization
+
+Earliest Deadline First
+-priority queue based on least time left
+-real time systems
+
+Fixed Priority Pre-Emptive
+-fixed priority assigned to each process
+-higher priority processes executed first
+-can be thought of as a priority queue for each priority level
+
+Round Robin
+-fixed intervals for each process
+-no priorities, so deadlines may not be met
+-more overhead
+-good average throughput
+
+Thread/Worker Pool :
+
+In the context of a multi-threaded process, the process may create a pool of
+worker threads upon starting. These workers wait to be allocated tasks that
+are to be completed concurrently. This strategy reduces the overhead of creating
+and destroying threads which may be high for many short lived tasks. There is
+the disadvantage that an excessively large pool of workers may idle and waste
+system resources. A common method of allocating tasks to workers is through a
+synchronized queue from which workers remove tasks. In general, a worker may be
+a thread or process and may reside on different machines!
+
+Producer-Consumer Problem :
+
+The producer-consumer problem is a classic example of a multi-process
+synchronization problem. A producer process and a consumer process share a common
+fixed size buffer used as a queue. The producer generates data and puts it in
+the queue while the consumer consumes data by removing it from the queue. They
+problem is to make sure the producer does not insert into a full queue and the
+consumer does not remove from an empty queue.
+
+The solution is to have the producer sleep if it finds the buffer to be full,
+and to only resume when it is notified of the consumer's next removal. Similarly,
+the consumer should sleep if the buffer is empty, and only resume when it is
+notified of the producer's next insertion.
+
+Mutex :
+A mutex is a lock that should be used when accessing shared data. A thread locks
+a mutex, getting exclusive access to the shared resource. Other threads are
+thus blocked from accessing it. Mutex data structures should contain resource
+status, a list of blocked threads and the mutex owner.
+
+e.g.
+Lock(mutex_object){
+  // blocks until mutex_object is free (regular polling)
+  // critical section (where resource is accessed)
+  // one thread allowed in at a time
+} // implicit release
+
+Conditional Variable :
+The condition variable has a mutex reference and therefore also a list of
+waiting threads.
+
+Wait(mutex, cond) // mutex automatically released and only re-acquired when free
+Signal(cond) // notify one waiting thread
+Broadcast(cond) // notify all waiting threads
+
+e.g.
+Wait(mutex_object, cond) {
+        // release mutex_object
+        // go to mutex_object's wait queue
+        // wait...
+        // remove from queue when given signal from condition variable
+        // re-acquire mutex_object
+        // exit wait operation
+}
+
+e.g. producer and consumer problem
+//consumer : print_and_clear
+Lock(m){
+        while(my_list.not_full())
+                Wait(m, list_full);
+        my_list.print_and_remove_all();
+}
+// producer : safe_insert
+Lock(m){
+        my_list.insert(my_thread_id)
+        if my_list.full()
+                Signal(list_full);
+}
+
+
+e.g. reader and writer problem
+// 1. readers
+Lock(counter_mutex){
+        while(resource_counter == -1)
+                wait(counter_mutex, read_phase);
+        resource_counter++;
+} // unlock
+// read data (CRITICAL SECTION)
+Lock(counter_mutex){
+        resource_counter--;
+        if(readers == 0)
+                Signal(write_phase);
+} // unlock
+
+// 2. writer
+Lock(counter_mutex){
+        while(resource_counter != 0)
+                Wait(counter_mutex, write_phase);
+        resource_counter = -1;
+} // unlock
+// write data (CRITICAL SECTION)
+Lock(counter_mutex){
+        resource_counter = 0;
+        Broadcast(read_phase);
+        Signal(write_phase);
+} // unlock
+
+Message Passing :
+Message passing is a form of loosely coupled distributed communication, which
+attempts to relax tightly coupled communication such as TCP by the use of an
+intermediary. This approach allows senders to communicate indirectly, meaning
+they do not need to know the exact recipients. Other advantages include
+integration of heterogenous platforms and scalability. Note that message
+passing differs from conventional programming where a process/function is
+directly invoked by name, rather the recipient is trusted to invoke the right
+code to run.
+
+Point to Point :
+Messages from many producers are routed to an individual consumer which
+maintains a queue of incoming messages. Consumers extract messages from the
+queue in order.
+
+Publish/Subscribe :
+Messages are published to a specific topic. Subscribers may register at a
+topic.
+
+Message Queue :
